@@ -2,6 +2,7 @@ package load_balancer
 
 import (
 	"math/rand"
+	"strconv"
 	"sync"
 	"time"
 
@@ -15,11 +16,17 @@ type LoadBalancer struct {
 }
 
 // NewLoadBalancer creates a new LoadBalancer instance and returns it
-func NewLoadBalancer(serviceName string) (*LoadBalancer, error) {
-	consulClient, err := api.NewClient(api.DefaultConfig())
+// Takes host and port of the Consul server as parameters
+func NewLoadBalancer(serviceName, host string, port int) (*LoadBalancer, error) {
+	// Create a custom configuration for the Consul client
+	config := api.DefaultConfig()
+	config.Address = host + ":" + strconv.Itoa(port)
+
+	consulClient, err := api.NewClient(config)
 	if err != nil {
 		return nil, err // Handle error if client creation fails
 	}
+
 	return &LoadBalancer{
 		consulClient: consulClient,
 		serviceName:  serviceName,
