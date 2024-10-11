@@ -1,6 +1,7 @@
 package load_balancer
 
 import (
+	"errors"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -9,20 +10,25 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
+// LoadBalancer manages load balancing for a service.
 type LoadBalancer struct {
 	consulClient *api.Client
 	mu           sync.RWMutex
 	serviceName  string
 }
 
-// NewLoadBalancer creates a new LoadBalancer instance and returns it
-// Takes host and port of the Consul server as parameters
-func NewLoadBalancer(serviceName, host string, port int) (*LoadBalancer, error) {
-	// Create a custom configuration for the Consul client
-	config := api.DefaultConfig()
-	config.Address = host + ":" + strconv.Itoa(port)
+// Load Balancer Registry to manage multiple load balancer instances.
+var (
+	loadBalancers = make(map[string]*LoadBalancer)
+	mu            sync.Mutex
+)
 
-	consulClient, err := api.NewClient(config)
+// newLoadBalancer creates a new LoadBalancer instance and returns it.
+// This function is private to the package.
+func newLoadBalancer(serviceName string, consulHost string, consulPort int) (*LoadBalancer, error) {
+	consulConfig := api.DefaultConfig()
+	consulConfig.Address = consulHost + ":" + strconv.Itoa(consulPort)
+	consulClient, err := api.NewClient(consulConfig)
 	if err != nil {
 		return nil, err // Handle error if client creation fails
 	}
@@ -33,38 +39,57 @@ func NewLoadBalancer(serviceName, host string, port int) (*LoadBalancer, error) 
 	}, nil
 }
 
-// GetHealthyInstances retrieves healthy instances of the specified service
+// GetLoadBalancer retrieves or creates a LoadBalancer instance for a service.
+func GetLoadBalancer(serviceName, consulHost string, consulPort int) (*LoadBalancer, error) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if lb, exists := loadBalancers[serviceName]; exists {
+		return lb, nil
+	}
+
+	lb, err := newLoadBalancer(serviceName, consulHost, consulPort)
+	if err != nil {
+		return nil, err
+	}
+
+	loadBalancers[serviceName] = lb
+	return lb, nil
+}
+
+// GetHealthyInstances retrieves healthy instances of the specified service.
 func (lb *LoadBalancer) GetHealthyInstances() ([]*api.AgentService, error) {
-	// Fetch healthy services directly using the Health package
 	health, _, err := lb.consulClient.Health().Service(lb.serviceName, "", true, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert []*api.ServiceEntry to []*api.AgentService
 	var instances []*api.AgentService
 	for _, entry := range health {
-		instances = append(instances, entry.Service) // Append the Service field
+		instances = append(instances, entry.Service)
 	}
 
-	return instances, nil // Return healthy instances
+	return instances, nil
 }
 
-// ChooseInstance randomly selects one of the healthy instances
+// ChooseInstance randomly selects one of the healthy instances.
 func (lb *LoadBalancer) ChooseInstance() (*api.AgentService, error) {
-	lb.mu.RLock() // Read lock for safe concurrent access
+	lb.mu.RLock()
 	defer lb.mu.RUnlock()
 
 	instances, err := lb.GetHealthyInstances()
-	if err != nil || len(instances) == 0 {
+	if err != nil {
 		return nil, err
 	}
 
-	// Randomly select an instance
+	if len(instances) == 0 {
+		return nil, errors.New("no healthy instances available")
+	}
+
 	return instances[rand.Intn(len(instances))], nil
 }
 
-// init initializes the random number generator
+// Initialize the random number generator.
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
