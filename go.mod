@@ -1,4 +1,4 @@
-module examples/greetings
+module github.com/ayushs-2k4/go-load-balancer
 
 go 1.23.2
 
