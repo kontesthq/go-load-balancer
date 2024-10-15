@@ -1,7 +1,7 @@
 package load_balancer
 
 import (
-	"errors"
+	error2 "github.com/ayushs-2k4/go-load-balancer/error"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -83,7 +83,7 @@ func (lb *LoadBalancer) ChooseInstance() (*api.AgentService, error) {
 	}
 
 	if len(instances) == 0 {
-		return nil, errors.New("no healthy instances available")
+		return nil, &error2.NoHealthyInstanceAvailableError{ServiceName: lb.serviceName}
 	}
 
 	return instances[rand.Intn(len(instances))], nil
