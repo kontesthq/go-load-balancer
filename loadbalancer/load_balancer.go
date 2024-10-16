@@ -1,4 +1,4 @@
-package load_balancer
+package loadbalancer
 
 import (
 	error2 "github.com/ayushs-2k4/go-load-balancer/error"
