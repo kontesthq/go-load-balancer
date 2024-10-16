@@ -1,13 +1,15 @@
-package main
+package go_load_balancer
+
+import (
+	"github.com/hashicorp/consul/api"
+	"strconv"
+	"sync"
+)
 
 import (
 	error2 "github.com/ayushs-2k4/go-load-balancer/error"
 	"math/rand"
-	"strconv"
-	"sync"
 	"time"
-
-	"github.com/hashicorp/consul/api"
 )
 
 // LoadBalancer manages load balancing for a service.
