@@ -1,6 +1,7 @@
-package error
+package load_balancer
 
 import (
+	error2 "github.com/ayushs-2k4/go-load-balancer/error"
 	"github.com/hashicorp/consul/api"
 	"strconv"
 	"sync"
@@ -84,7 +85,7 @@ func (lb *LoadBalancer) ChooseInstance() (*api.AgentService, error) {
 	}
 
 	if len(instances) == 0 {
-		return nil, &NoHealthyInstanceAvailableError{ServiceName: lb.serviceName}
+		return nil, &error2.NoHealthyInstanceAvailableError{ServiceName: lb.serviceName}
 	}
 
 	return instances[rand.Intn(len(instances))], nil
