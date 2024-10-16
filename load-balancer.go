@@ -1,4 +1,4 @@
-package go_load_balancer
+package goloadbalancer
 
 import (
 	"github.com/hashicorp/consul/api"
