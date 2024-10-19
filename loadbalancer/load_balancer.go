@@ -1,8 +1,8 @@
 package loadbalancer
 
 import (
-	error2 "github.com/ayushs-2k4/go-load-balancer/error"
 	"github.com/hashicorp/consul/api"
+	error2 "github.com/kontesthq/go-load-balancer/error"
 	"strconv"
 	"sync"
 )
