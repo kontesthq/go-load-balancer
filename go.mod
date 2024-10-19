@@ -1,4 +1,4 @@
-module github.com/ayushs-2k4/go-load-balancer
+module github.com/kontesthq/go-load-balancer
 
 go 1.23.2
 
