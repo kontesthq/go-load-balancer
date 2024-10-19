@@ -2,7 +2,7 @@ module github.com/kontesthq/go-load-balancer
 
 go 1.23.2
 
-require github.com/hashicorp/consul/api v1.29.4
+require github.com/hashicorp/consul/api v1.30.0
 
 require (
 	github.com/armon/go-metrics v0.4.1 // indirect
