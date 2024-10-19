@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the version tag
-VERSION="v0.1.8-beta-8"
+VERSION="v0.1.8-beta-9"
 
 # Navigate to the current directory
 cd "$(pwd)" || exit
@@ -21,7 +21,7 @@ else
 fi
 
 # Set GOPROXY and list the module to verify the tag
-GOPROXY=proxy.golang.org go list -m github.com/ayushs-2k4/go-load-balancer@"$VERSION"
+GOPROXY=proxy.golang.org go list -m github.com/kontesthq/go-load-balancer@"$VERSION"
 
 # Check if the go list command was successful
 if [ $? -eq 0 ]; then
