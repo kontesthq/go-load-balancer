@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	cacheDuration          time.Duration = 30 * time.Second
+	cacheDuration          = 30 * time.Second
 	cachedHealthyInstances []*api.AgentService
 	cachedServices         []*api.CatalogService
 	lastUpdatedTime        time.Time
