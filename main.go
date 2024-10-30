@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/consul/api"
 	"github.com/kontesthq/go-load-balancer/client"
 	"log/slog"
+	"time"
 )
 
 func main() {
@@ -20,9 +21,17 @@ func main() {
 	test(loadBalancerClient)
 	test(loadBalancerClient)
 	test(loadBalancerClient)
+
+	time.Sleep(10 * time.Second)
 	test(loadBalancerClient)
+
+	time.Sleep(10 * time.Second)
 	test(loadBalancerClient)
+
+	time.Sleep(10 * time.Second)
 	test(loadBalancerClient)
+
+	time.Sleep(10 * time.Second)
 	test(loadBalancerClient)
 
 }
