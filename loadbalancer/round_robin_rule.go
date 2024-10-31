@@ -11,6 +11,10 @@ type RoundRobinRule struct {
 	nextServerCyclicCounter int32
 }
 
+func NewRoundRobinRule() *RoundRobinRule {
+	return &RoundRobinRule{}
+}
+
 func (r *RoundRobinRule) ChooseServer(lb LoadBalancer) *api.AgentService {
 	if lb == nil {
 		slog.Warn("LoadBalancer is nil")

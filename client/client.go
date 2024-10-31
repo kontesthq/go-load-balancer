@@ -34,12 +34,30 @@ func NewClient(consulHost string, consulPort int, serviceName string, lbType Loa
 	var lb *loadbalancer.BaseLoadBalancer
 	switch lbType {
 	case RoundRobin:
-		lb = loadbalancer.NewBaseLoadBalancerWithRule(consulClient, &loadbalancer.RoundRobinRule{}, serviceName)
+		lb = loadbalancer.NewBaseLoadBalancerWithRule(consulClient, loadbalancer.NewRoundRobinRule(), serviceName)
 	case Random:
 		lb = loadbalancer.NewBaseLoadBalancerWithRule(consulClient, &loadbalancer.RandomRule{}, serviceName)
 	default:
 		return nil, fmt.Errorf("unsupported load balancer type: %v", lbType)
 	}
+
+	return &Client{
+		consulClient: consulClient,
+		serviceName:  serviceName,
+		loadbalancer: lb,
+	}, nil
+}
+
+func NewClientWithCustomRule(consulHost string, consulPort int, serviceName string, rule loadbalancer.IRule) (*Client, error) {
+	consulConfig := api.DefaultConfig()
+	consulConfig.Address = consulHost + ":" + strconv.Itoa(consulPort)
+	consulClient, err := api.NewClient(consulConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	// Initialize the load balancer based on the specified type
+	lb := loadbalancer.NewBaseLoadBalancerWithRule(consulClient, rule, serviceName)
 
 	return &Client{
 		consulClient: consulClient,
