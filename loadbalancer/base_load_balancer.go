@@ -3,7 +3,6 @@ package loadbalancer
 import (
 	"errors"
 	"github.com/hashicorp/consul/api"
-	"github.com/kontesthq/go-load-balancer/utils"
 	"sync"
 )
 
@@ -35,11 +34,11 @@ func NewBaseLoadBalancerWithRule(consulClient *api.Client, rule IRule, serviceNa
 	}
 }
 
-func (lb *BaseLoadBalancer) GetServers() []*api.AgentService {
+func (lb *BaseLoadBalancer) GetServers() []Server {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()
 
-	instances, err := utils.GetHealthyInstancesOfAService(lb.consulClient, lb.GetServiceName())
+	instances, err := GetHealthyInstancesOfAService(lb.consulClient, lb.GetServiceName())
 	if err != nil {
 		return nil
 	}
@@ -47,7 +46,7 @@ func (lb *BaseLoadBalancer) GetServers() []*api.AgentService {
 	return instances
 }
 
-func (lb *BaseLoadBalancer) ChooseServer() (*api.AgentService, error) {
+func (lb *BaseLoadBalancer) ChooseServer() (Server, error) {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()
 

@@ -1,7 +1,6 @@
 package loadbalancer
 
 import (
-	"github.com/hashicorp/consul/api"
 	"time"
 )
 
@@ -37,11 +36,11 @@ func (r *RetryRule) GetMaxRetryMillis() int64 {
 	return r.maxRetryMillis
 }
 
-func (r *RetryRule) ChooseServer(lb LoadBalancer) *api.AgentService {
+func (r *RetryRule) ChooseServer(lb LoadBalancer) Server {
 	requestTime := time.Now().UnixMilli()
 	deadline := requestTime + r.maxRetryMillis
 
-	var answer *api.AgentService = nil
+	var answer Server = nil
 
 	answer = r.subRule.ChooseServer(lb)
 

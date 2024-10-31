@@ -1,19 +1,18 @@
 package loadbalancer
 
 import (
-	"github.com/hashicorp/consul/api"
 	"math/rand"
 )
 
 type RandomRule struct {
 }
 
-func (r *RandomRule) ChooseServer(lb LoadBalancer) *api.AgentService {
+func (r *RandomRule) ChooseServer(lb LoadBalancer) Server {
 	if lb == nil {
 		return nil
 	}
 
-	var server *api.AgentService = nil
+	var server Server = nil
 
 	for server == nil {
 		servers := (lb).GetServers()

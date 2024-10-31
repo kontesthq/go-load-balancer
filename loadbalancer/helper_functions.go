@@ -1,4 +1,4 @@
-package utils
+package loadbalancer
 
 import (
 	"github.com/hashicorp/consul/api"
@@ -8,7 +8,7 @@ import (
 
 var (
 	cacheDuration          = 30 * time.Second
-	cachedHealthyInstances []*api.AgentService
+	cachedHealthyInstances []Server
 	cachedServices         []*api.CatalogService
 	lastUpdatedTime        time.Time
 )
@@ -19,7 +19,7 @@ func SetCacheDuration(duration time.Duration) {
 }
 
 // GetHealthyInstancesOfAService retrieves healthy instances of the specified service.
-func GetHealthyInstancesOfAService(consulClient *api.Client, serviceName string) ([]*api.AgentService, error) {
+func GetHealthyInstancesOfAService(consulClient *api.Client, serviceName string) ([]Server, error) {
 	// Check if the cache is valid
 	if time.Since(lastUpdatedTime) <= cacheDuration {
 		slog.Info("Using cached healthy instances")
@@ -38,7 +38,7 @@ func GetHealthyInstancesOfAService(consulClient *api.Client, serviceName string)
 
 	// Collect healthy instances
 	for _, entry := range health {
-		cachedHealthyInstances = append(cachedHealthyInstances, entry.Service) // Append to cached healthy instances
+		cachedHealthyInstances = append(cachedHealthyInstances, NewConsulServer(entry.Service, true, true)) // Append to cached healthy instances
 	}
 
 	// Update the last updated time

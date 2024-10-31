@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/hashicorp/consul/api"
 	"github.com/kontesthq/go-load-balancer/client"
+	"github.com/kontesthq/go-load-balancer/loadbalancer"
 	"log/slog"
 	"time"
 )
@@ -51,8 +51,8 @@ func test(client *client.Client) {
 	printServer(server)
 }
 
-func printServer(server *api.AgentService) {
-	message := fmt.Sprintf("Kind: %s, ID: %s, Address: %s, Service: %s",
-		server.Kind, server.ID, server.Address, server.Service)
+func printServer(server loadbalancer.Server) {
+	//message := fmt.Sprintf("Kind: %s, ID: %s, Address: %s, Service: %s", server.Kind, server.ID, server.Address, server.Service)
+	message := fmt.Sprintf("Server: %v\n", loadbalancer.CommonServerString(server))
 	slog.Info(message)
 }
