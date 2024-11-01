@@ -2,13 +2,14 @@ package loadbalancer
 
 import (
 	"github.com/hashicorp/consul/api"
+	"github.com/kontesthq/go-load-balancer/server"
 	"log/slog"
 	"time"
 )
 
 var (
 	cacheDuration          = 30 * time.Second
-	cachedHealthyInstances []Server
+	cachedHealthyInstances []server.Server
 	cachedServices         []*api.CatalogService
 	lastUpdatedTime        time.Time
 )
@@ -19,7 +20,7 @@ func SetCacheDuration(duration time.Duration) {
 }
 
 // GetHealthyInstancesOfAService retrieves healthy instances of the specified service.
-func GetHealthyInstancesOfAService(consulClient *api.Client, serviceName string) ([]Server, error) {
+func GetHealthyInstancesOfAService(consulClient *api.Client, serviceName string) ([]server.Server, error) {
 	// Check if the cache is valid
 	if time.Since(lastUpdatedTime) <= cacheDuration {
 		slog.Info("Using cached healthy instances")

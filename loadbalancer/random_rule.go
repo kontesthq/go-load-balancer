@@ -1,18 +1,19 @@
 package loadbalancer
 
 import (
+	"github.com/kontesthq/go-load-balancer/server"
 	"math/rand"
 )
 
 type RandomRule struct {
 }
 
-func (r *RandomRule) ChooseServer(lb LoadBalancer) Server {
+func (r *RandomRule) ChooseServer(lb LoadBalancer) server.Server {
 	if lb == nil {
 		return nil
 	}
 
-	var server Server = nil
+	var server server.Server = nil
 
 	for server == nil {
 		servers := (lb).GetServers()

@@ -2,6 +2,7 @@ package loadbalancer
 
 import (
 	"fmt"
+	"github.com/kontesthq/go-load-balancer/server"
 	"log/slog"
 	"sync/atomic"
 )
@@ -14,13 +15,13 @@ func NewRoundRobinRule() *RoundRobinRule {
 	return &RoundRobinRule{}
 }
 
-func (r *RoundRobinRule) ChooseServer(lb LoadBalancer) Server {
+func (r *RoundRobinRule) ChooseServer(lb LoadBalancer) server.Server {
 	if lb == nil {
 		slog.Warn("LoadBalancer is nil")
 		return nil
 	}
 
-	var server Server = nil
+	var server server.Server = nil
 	var count int = 0
 
 	for count < 10 {

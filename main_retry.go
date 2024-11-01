@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/kontesthq/go-load-balancer/client"
 	"github.com/kontesthq/go-load-balancer/loadbalancer"
+	"github.com/kontesthq/go-load-balancer/server"
 	"log/slog"
 )
 
@@ -34,8 +35,8 @@ func test(client *client.ConsulClient) {
 	printServer(server)
 }
 
-func printServer(server loadbalancer.Server) {
+func printServer(serverInstance server.Server) {
 	//message := fmt.Sprintf("Kind: %s, ID: %s, Address: %s, Service: %s", server.Kind, server.ID, server.Address, server.Service)
-	message := fmt.Sprintf("Server: %v\n", loadbalancer.CommonServerString(server))
+	message := fmt.Sprintf("Server: %v\n", server.CommonServerString(serverInstance))
 	slog.Info(message)
 }

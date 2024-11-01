@@ -1,6 +1,7 @@
 package loadbalancer
 
 import (
+	"github.com/kontesthq/go-load-balancer/server"
 	"time"
 )
 
@@ -36,11 +37,11 @@ func (r *RetryRule) GetMaxRetryMillis() int64 {
 	return r.maxRetryMillis
 }
 
-func (r *RetryRule) ChooseServer(lb LoadBalancer) Server {
+func (r *RetryRule) ChooseServer(lb LoadBalancer) server.Server {
 	requestTime := time.Now().UnixMilli()
 	deadline := requestTime + r.maxRetryMillis
 
-	var answer Server = nil
+	var answer server.Server = nil
 
 	answer = r.subRule.ChooseServer(lb)
 

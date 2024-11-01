@@ -1,4 +1,4 @@
-package loadbalancer
+package server
 
 import (
 	"fmt"
