@@ -10,16 +10,15 @@ import (
 )
 
 var (
-	cacheDuration          = 30 * time.Second
-	cachedHealthyInstances []server.Server
-	cachedServices         []*api.CatalogService
-	lastUpdatedTime        time.Time
+	cacheDuration   = 30 * time.Second
+	lastUpdatedTime time.Time
 )
 
 type ConsulClient struct {
-	consulClient *api.Client
-	serviceName  string
-	loadbalancer LoadBalancer
+	consulClient           *api.Client
+	cachedHealthyInstances []server.Server
+	serviceName            string
+	loadbalancer           LoadBalancer
 }
 
 func (c *ConsulClient) GetAllInstances() ([]server.Server, error) {
@@ -30,7 +29,7 @@ func (c *ConsulClient) GetHealthyInstances() ([]server.Server, error) {
 	// Check if the cache is valid
 	if time.Since(lastUpdatedTime) <= cacheDuration {
 		slog.Info("Using cached healthy instances")
-		return cachedHealthyInstances, nil // Return cached healthy instances if valid
+		return c.cachedHealthyInstances, nil // Return cached healthy instances if valid
 	}
 	slog.Info("Fetching healthy instances from Consul")
 
@@ -41,17 +40,17 @@ func (c *ConsulClient) GetHealthyInstances() ([]server.Server, error) {
 	}
 
 	// Clear previous cached healthy instances
-	cachedHealthyInstances = nil
+	c.cachedHealthyInstances = nil
 
 	// Collect healthy instances
 	for _, entry := range health {
-		cachedHealthyInstances = append(cachedHealthyInstances, server.NewConsulServer(entry.Service, true, true)) // Append to cached healthy instances
+		c.cachedHealthyInstances = append(c.cachedHealthyInstances, server.NewConsulServer(entry.Service, true, true)) // Append to cached healthy instances
 	}
 
 	// Update the last updated time
 	lastUpdatedTime = time.Now()
 
-	return cachedHealthyInstances, nil
+	return c.cachedHealthyInstances, nil
 }
 
 func NewConsulClient(consulHost string, consulPort int, serviceName string, lbType LoadBalancerType) (*ConsulClient, error) {
