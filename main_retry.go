@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	loadBalancerClient, err := client.NewClientWithCustomRule("localhost", 5150, "KONTEST-API", loadbalancer.NewRetryRuleWithDefaults())
+	loadBalancerClient, err := client.NewConsulClientWithCustomRule("localhost", 5150, "KONTEST-API", loadbalancer.NewRetryRule(loadbalancer.NewRoundRobinRule(), 200))
 
 	if err != nil {
 		panic(err)
@@ -19,10 +19,10 @@ func main() {
 	slog.Info("Completed!")
 }
 
-func test(client *client.Client) {
+func test(client *client.ConsulClient) {
 	server, err := (*client).GetLoadBalancer().ChooseServer()
 	if err != nil {
-		slog.Error("No Client available")
+		slog.Error("No ConsulClient available")
 		return
 	}
 

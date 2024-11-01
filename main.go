@@ -9,16 +9,12 @@ import (
 )
 
 func main() {
-	loadBalancerClient, err := client.NewClient("localhost", 5150, "KONTEST-API", client.RoundRobin)
+	loadBalancerClient, err := client.NewConsulClient("localhost", 5150, "KONTEST-API", loadbalancer.RoundRobin)
 
 	if err != nil {
 		panic(err)
 	}
 
-	test(loadBalancerClient)
-	test(loadBalancerClient)
-	test(loadBalancerClient)
-	test(loadBalancerClient)
 	test(loadBalancerClient)
 	test(loadBalancerClient)
 
@@ -36,10 +32,10 @@ func main() {
 
 }
 
-func test(client *client.Client) {
+func test(client *client.ConsulClient) {
 	server, err := (*client).GetLoadBalancer().ChooseServer()
 	if err != nil {
-		slog.Error("No Client available")
+		slog.Error("No ConsulClient available")
 		return
 	}
 
