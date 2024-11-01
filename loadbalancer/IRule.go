@@ -5,5 +5,5 @@ import (
 )
 
 type IRule interface {
-	ChooseServer(lb LoadBalancer) server.Server
+	ChooseServer(client Client) server.Server
 }

@@ -1,9 +1,8 @@
-package loadbalancer
+package server
 
 import (
 	"fmt"
 	"github.com/hashicorp/consul/api"
-	"github.com/kontesthq/go-load-balancer/server"
 	"log/slog"
 )
 
@@ -54,13 +53,13 @@ func (c *ConsulServer) GetHostPort() string {
 	return fmt.Sprintf("%s:%d", c.GetHost(), c.GetPort())
 }
 
-func (c *ConsulServer) GetMetaInfo() server.MetaInfo {
-	return server.NewSimpleMetaInfo(c.service.Service, "", "", c.service.ID)
+func (c *ConsulServer) GetMetaInfo() MetaInfo {
+	return NewSimpleMetaInfo(c.service.Service, "", "", c.service.ID)
 }
 
 func (c *ConsulServer) GetZone() string {
 	if c.service.Locality == nil {
-		return server.UNKNOWN_ZONE
+		return UNKNOWN_ZONE
 	}
 	return c.service.Locality.Zone
 }

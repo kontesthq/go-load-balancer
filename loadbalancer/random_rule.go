@@ -1,41 +1,50 @@
 package loadbalancer
 
 import (
+	"fmt"
 	"github.com/kontesthq/go-load-balancer/server"
+	"log/slog"
 	"math/rand"
+	"time"
 )
 
 type RandomRule struct {
 }
 
-func (r *RandomRule) ChooseServer(lb LoadBalancer) server.Server {
-	if lb == nil {
+func (r *RandomRule) ChooseServer(client Client) server.Server {
+	if client == nil {
 		return nil
 	}
 
-	var server server.Server = nil
+	var chosenServer server.Server = nil
 
-	for server == nil {
-		servers := (lb).GetServers()
+	for chosenServer == nil {
+		servers, err := client.GetHealthyInstances()
+
+		if err != nil {
+			slog.Error(fmt.Sprintf("Error in getting healthy instances: %v\n", err))
+			return nil
+		}
 
 		if len(servers) == 0 {
 			return nil
 		}
 
 		index := chooseRandomInt(len(servers))
-		server = servers[index]
+		chosenServer = servers[index]
 
-		if server == nil {
+		if chosenServer == nil {
 			/*
-			 * The only time this should happen is if the server list were
+			 * The only time this should happen is if the chosenServer list were
 			 * somehow trimmed. This is a transient condition. Retry after
 			 * yielding.
 			 */
+			time.Sleep(1 * time.Millisecond)
 			continue
 		}
 	}
 
-	return server
+	return chosenServer
 }
 
 func chooseRandomInt(serverCount int) int {

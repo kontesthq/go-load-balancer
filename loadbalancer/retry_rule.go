@@ -37,17 +37,17 @@ func (r *RetryRule) GetMaxRetryMillis() int64 {
 	return r.maxRetryMillis
 }
 
-func (r *RetryRule) ChooseServer(lb LoadBalancer) server.Server {
+func (r *RetryRule) ChooseServer(client Client) server.Server {
 	requestTime := time.Now().UnixMilli()
 	deadline := requestTime + r.maxRetryMillis
 
 	var answer server.Server = nil
 
-	answer = r.subRule.ChooseServer(lb)
+	answer = r.subRule.ChooseServer(client)
 
 	for answer == nil && time.Now().UnixMilli() < deadline {
 		time.Sleep(1 * time.Millisecond)
-		answer = r.subRule.ChooseServer(lb)
+		answer = r.subRule.ChooseServer(client)
 	}
 
 	return answer

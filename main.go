@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/kontesthq/go-load-balancer/client"
 	"github.com/kontesthq/go-load-balancer/loadbalancer"
 	"github.com/kontesthq/go-load-balancer/server"
 	"log/slog"
@@ -10,7 +9,7 @@ import (
 )
 
 func main() {
-	loadBalancerClient, err := client.NewConsulClient("localhost", 5150, "KONTEST-API", loadbalancer.RoundRobin)
+	loadBalancerClient, err := loadbalancer.NewConsulClient("localhost", 5150, "KONTEST-API", loadbalancer.RoundRobin)
 
 	if err != nil {
 		panic(err)
@@ -33,8 +32,8 @@ func main() {
 
 }
 
-func test(client *client.ConsulClient) {
-	server, err := (*client).GetLoadBalancer().ChooseServer()
+func test(client *loadbalancer.ConsulClient) {
+	server, err := (*client).GetLoadBalancer().ChooseServer(client)
 	if err != nil {
 		slog.Error("No ConsulClient available")
 		return

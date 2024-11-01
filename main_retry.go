@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/kontesthq/go-load-balancer/client"
 	"github.com/kontesthq/go-load-balancer/loadbalancer"
 	"github.com/kontesthq/go-load-balancer/server"
 	"log/slog"
 )
 
 func main() {
-	loadBalancerClient, err := client.NewConsulClientWithCustomRule("localhost", 5150, "KONTEST-API", loadbalancer.NewRetryRule(loadbalancer.NewRoundRobinRule(), 200))
+	loadBalancerClient, err := loadbalancer.NewConsulClientWithCustomRule("localhost", 5150, "KONTEST-API", loadbalancer.NewRetryRule(loadbalancer.NewRoundRobinRule(), 200))
 
 	if err != nil {
 		panic(err)
@@ -20,8 +19,8 @@ func main() {
 	slog.Info("Completed!")
 }
 
-func test(client *client.ConsulClient) {
-	server, err := (*client).GetLoadBalancer().ChooseServer()
+func test(client *loadbalancer.ConsulClient) {
+	server, err := (*client).GetLoadBalancer().ChooseServer(client)
 	if err != nil {
 		slog.Error("No ConsulClient available")
 		return

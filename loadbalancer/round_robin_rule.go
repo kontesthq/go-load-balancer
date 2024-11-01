@@ -15,8 +15,8 @@ func NewRoundRobinRule() *RoundRobinRule {
 	return &RoundRobinRule{}
 }
 
-func (r *RoundRobinRule) ChooseServer(lb LoadBalancer) server.Server {
-	if lb == nil {
+func (r *RoundRobinRule) ChooseServer(client Client) server.Server {
+	if client == nil {
 		slog.Warn("LoadBalancer is nil")
 		return nil
 	}
@@ -27,7 +27,12 @@ func (r *RoundRobinRule) ChooseServer(lb LoadBalancer) server.Server {
 	for count < 10 {
 		count++
 
-		servers := lb.GetServers()
+		servers, err := client.GetHealthyInstances()
+
+		if err != nil {
+			slog.Error(fmt.Sprintf("Error in getting healthy instances: %v\n", err))
+			return nil
+		}
 
 		if servers == nil || len(servers) == 0 {
 			slog.Warn("No servers available")
@@ -45,7 +50,7 @@ func (r *RoundRobinRule) ChooseServer(lb LoadBalancer) server.Server {
 		return server
 	}
 
-	slog.Warn(fmt.Sprintf("No available alive servers after 10 tries from load balancer: %v", lb))
+	slog.Warn(fmt.Sprintf("No available alive servers after 10 tries from client: %v", client))
 
 	return server
 }

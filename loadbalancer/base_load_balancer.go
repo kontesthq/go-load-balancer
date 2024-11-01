@@ -2,59 +2,43 @@ package loadbalancer
 
 import (
 	"errors"
-	"github.com/hashicorp/consul/api"
 	"github.com/kontesthq/go-load-balancer/server"
 	"sync"
 )
 
 // BaseLoadBalancer manages load balancing for a service.
 type BaseLoadBalancer struct {
-	mu           sync.RWMutex
-	rule         IRule
-	consulClient *api.Client
-	serviceName  string
+	mu          sync.RWMutex
+	rule        IRule
+	serviceName string
 }
 
 func (lb *BaseLoadBalancer) GetServiceName() string {
 	return lb.serviceName
 }
 
-func NewBaseLoadBalancer(consulClient *api.Client, serviceName string) *BaseLoadBalancer {
+func NewBaseLoadBalancer(serviceName string) *BaseLoadBalancer {
 	return &BaseLoadBalancer{
-		rule:         &RandomRule{},
-		consulClient: consulClient,
-		serviceName:  serviceName,
+		rule:        &RandomRule{},
+		serviceName: serviceName,
 	}
 }
 
-func NewBaseLoadBalancerWithRule(consulClient *api.Client, rule IRule, serviceName string) *BaseLoadBalancer {
+func NewBaseLoadBalancerWithRule(rule IRule, serviceName string) *BaseLoadBalancer {
 	return &BaseLoadBalancer{
-		rule:         rule,
-		consulClient: consulClient,
-		serviceName:  serviceName,
+		rule:        rule,
+		serviceName: serviceName,
 	}
 }
 
-func (lb *BaseLoadBalancer) GetServers() []server.Server {
+func (lb *BaseLoadBalancer) ChooseServer(client Client) (server.Server, error) {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()
 
-	instances, err := GetHealthyInstancesOfAService(lb.consulClient, lb.GetServiceName())
-	if err != nil {
-		return nil
+	chosenServer := lb.rule.ChooseServer(client)
+	if chosenServer == nil {
+		return nil, errors.New("no healthy chosenServer instance available")
 	}
 
-	return instances
-}
-
-func (lb *BaseLoadBalancer) ChooseServer() (server.Server, error) {
-	lb.mu.RLock()
-	defer lb.mu.RUnlock()
-
-	server := lb.rule.ChooseServer(lb)
-	if server == nil {
-		return nil, errors.New("no healthy server instance available")
-	}
-
-	return server, nil
+	return chosenServer, nil
 }
